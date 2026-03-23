@@ -6,6 +6,7 @@ import { createComponentRoutes } from './routes/components.js';
 import { createAppRoutes } from './routes/apps.js';
 import { createIntentRoutes } from './routes/intent.js';
 import { createSyncRoutes } from './routes/sync.js';
+import { createAggregationRoutes } from './routes/aggregation.js';
 
 interface ServerDeps {
   registry: ComponentRegistry;
@@ -36,6 +37,7 @@ export function createServer(deps: ServerDeps): express.Application {
   apiRouter.use('/apps', createAppRoutes(deps));
   apiRouter.use('/intent', createIntentRoutes(deps));
   apiRouter.use('/sync', createSyncRoutes(deps));
+  apiRouter.use('/aggregation', createAggregationRoutes());
 
   app.use('/api', apiRouter);
 

@@ -171,4 +171,8 @@ npm run cli -- create "每天推送天气到微信" --save
 6. [x] 应用分享/导出功能 - ✅ 2026-03-23 完成
 7. OpenClaw Gateway 集成
 8. 百度千帆/阿里百炼适配器
-9. 更多 MCP Servers（文件系统、数据库等）
+9. [x] 更多 MCP Servers - ✅ 2026-03-23 完成
+   - filesystem（文件系统）
+   - time（时间日期）
+   - calculator（计算器/单位转换）
+   - json（JSON 处理）
