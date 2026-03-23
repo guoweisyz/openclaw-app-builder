@@ -331,6 +331,130 @@ export class DatabaseManager {
   }
 
   /**
+   * 保存执行记录
+   */
+  async saveExecution(execution: {
+    id: string;
+    appId: string;
+    status: 'running' | 'success' | 'failed';
+    startedAt: string;
+    endedAt?: string;
+    outputs?: Record<string, any>;
+    error?: string;
+  }): Promise<void> {
+    const stmt = await this.db.prepare(`
+      INSERT INTO executions (
+        id, app_id, status, started_at, ended_at, result, error
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    await stmt.run(
+      execution.id,
+      execution.appId,
+      execution.status,
+      execution.startedAt,
+      execution.endedAt || null,
+      execution.outputs ? JSON.stringify(execution.outputs) : null,
+      execution.error || null
+    );
+
+    await stmt.finalize();
+  }
+
+  /**
+   * 更新执行记录
+   */
+  async updateExecution(
+    id: string,
+    updates: {
+      status?: 'running' | 'success' | 'failed';
+      endedAt?: string;
+      outputs?: Record<string, any>;
+      error?: string;
+    }
+  ): Promise<void> {
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    if (updates.status) {
+      fields.push('status = ?');
+      values.push(updates.status);
+    }
+    if (updates.endedAt) {
+      fields.push('ended_at = ?');
+      values.push(updates.endedAt);
+    }
+    if (updates.outputs) {
+      fields.push('result = ?');
+      values.push(JSON.stringify(updates.outputs));
+    }
+    if (updates.error !== undefined) {
+      fields.push('error = ?');
+      values.push(updates.error);
+    }
+
+    if (fields.length === 0) return;
+
+    values.push(id);
+    await this.db.run(
+      `UPDATE executions SET ${fields.join(', ')} WHERE id = ?`,
+      values
+    );
+  }
+
+  /**
+   * 获取应用的执行历史
+   */
+  async getExecutions(appId: string, limit = 50): Promise<any[]> {
+    const rows = await this.db.all(
+      `SELECT * FROM executions 
+       WHERE app_id = ? 
+       ORDER BY started_at DESC 
+       LIMIT ?`,
+      appId,
+      limit
+    );
+
+    return rows.map((row: any) => ({
+      id: row.id,
+      appId: row.app_id,
+      status: row.status,
+      startedAt: row.started_at,
+      endedAt: row.ended_at,
+      outputs: row.result ? JSON.parse(row.result) : null,
+      error: row.error,
+    }));
+  }
+
+  /**
+   * 获取执行统计
+   */
+  async getExecutionStats(appId: string): Promise<{
+    total: number;
+    success: number;
+    failed: number;
+    lastRun?: string;
+  }> {
+    const stats = await this.db.get(
+      `SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) as success,
+        SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
+        MAX(started_at) as last_run
+       FROM executions 
+       WHERE app_id = ?`,
+      appId
+    );
+
+    return {
+      total: stats.total || 0,
+      success: stats.success || 0,
+      failed: stats.failed || 0,
+      lastRun: stats.last_run,
+    };
+  }
+
+  /**
    * 关闭数据库
    */
   async close(): Promise<void> {

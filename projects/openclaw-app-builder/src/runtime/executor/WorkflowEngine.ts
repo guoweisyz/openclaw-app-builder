@@ -1,5 +1,6 @@
 import type { Component, App, WorkflowStep, ExecutionResult, StepResult } from '../../types/index.js';
 import { ComponentRegistry } from '../../marketplace/registry/ComponentRegistry.js';
+import { DatabaseManager } from '../../utils/DatabaseManager.js';
 import { MCPClient } from './MCPClient.js';
 import { logger } from '../../utils/logger.js';
 
@@ -9,10 +10,12 @@ import { logger } from '../../utils/logger.js';
 export class WorkflowEngine {
   private mcpClient: MCPClient;
   private registry: ComponentRegistry;
+  private db: DatabaseManager;
 
   constructor(registry: ComponentRegistry) {
     this.mcpClient = new MCPClient();
     this.registry = registry;
+    this.db = new DatabaseManager();
   }
 
   /**
@@ -23,6 +26,17 @@ export class WorkflowEngine {
     const startedAt = new Date().toISOString();
 
     logger.info(`开始执行应用: ${app.name} (run: ${runId})`);
+
+    // 初始化数据库
+    await this.db.initialize();
+
+    // 保存执行记录（开始）
+    await this.db.saveExecution({
+      id: runId,
+      appId: app.id,
+      status: 'running',
+      startedAt,
+    });
 
     const stepResults: StepResult[] = [];
     const context: Record<string, unknown> = { ...inputs };
@@ -48,7 +62,7 @@ export class WorkflowEngine {
         }
       }
 
-      return {
+      const result: ExecutionResult = {
         success: true,
         appId: app.id,
         runId,
@@ -57,8 +71,18 @@ export class WorkflowEngine {
         stepResults,
         outputs: context,
       };
+
+      // 更新执行记录（成功）
+      await this.db.updateExecution(runId, {
+        status: 'success',
+        endedAt: result.endedAt,
+        outputs: context,
+      });
+
+      return result;
     } catch (error) {
-      return {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const result: ExecutionResult = {
         success: false,
         appId: app.id,
         runId,
@@ -66,8 +90,17 @@ export class WorkflowEngine {
         endedAt: new Date().toISOString(),
         stepResults,
         outputs: context,
-        error: error instanceof Error ? error.message : String(error),
+        error: errorMessage,
       };
+
+      // 更新执行记录（失败）
+      await this.db.updateExecution(runId, {
+        status: 'failed',
+        endedAt: result.endedAt,
+        error: errorMessage,
+      });
+
+      return result;
     } finally {
       // 清理 MCP 连接
       await this.mcpClient.disconnect();

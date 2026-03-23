@@ -193,6 +193,25 @@ export class AppManager {
   }
 
   /**
+   * 获取应用执行历史
+   */
+  async getExecutionHistory(appId: string, limit = 50): Promise<any[]> {
+    return this.db.getExecutions(appId, limit);
+  }
+
+  /**
+   * 获取应用执行统计
+   */
+  async getExecutionStats(appId: string): Promise<{
+    total: number;
+    success: number;
+    failed: number;
+    lastRun?: string;
+  }> {
+    return this.db.getExecutionStats(appId);
+  }
+
+  /**
    * 关闭管理器
    */
   async shutdown(): Promise<void> {

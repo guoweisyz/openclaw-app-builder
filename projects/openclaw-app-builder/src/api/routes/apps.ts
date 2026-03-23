@@ -76,5 +76,18 @@ export function createAppRoutes(deps: RouteDeps): Router {
     res.json({ scheduled: status });
   });
 
+  // 获取应用执行历史
+  router.get('/:id/executions', async (req, res) => {
+    const limit = parseInt(req.query.limit as string) || 50;
+    const executions = await deps.appManager.getExecutionHistory(req.params.id, limit);
+    res.json({ executions });
+  });
+
+  // 获取应用执行统计
+  router.get('/:id/stats', async (req, res) => {
+    const stats = await deps.appManager.getExecutionStats(req.params.id);
+    res.json(stats);
+  });
+
   return router;
 }

@@ -163,7 +163,9 @@ npm run cli -- create "每天推送天气到微信" --save
 
 1. [x] 添加前端界面（Web UI）- ✅ 2026-03-23 完成
 2. [x] 实现定时调度功能 - ✅ 2026-03-23 完成
-3. 接入真实 MCP Servers（fetch, filesystem）
+3. [x] 接入真实 MCP Servers - ✅ 2026-03-23 完成
+   - weather-server（天气查询，使用 wttr.in）
+   - fetch-server（HTTP 请求）
 4. OpenClaw Gateway 集成
 5. 百度千帆/阿里百炼适配器
 6. 应用分享/导出功能
