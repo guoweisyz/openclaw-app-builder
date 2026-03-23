@@ -213,9 +213,16 @@ export class IntentEngine {
   }
 
   /**
+   * 解析用户意图（公共方法，供向导使用）
+   */
+  async parseIntent(description: string): Promise<UserIntent> {
+    return this.parse(description);
+  }
+
+  /**
    * 解析用户意图
    */
-  async parse(description: string): Promise<UserIntent> {
+  private async parse(description: string): Promise<UserIntent> {
     // 使用 LLM 解析意图
     const intent = await this.llmEngine.parse(description);
     
@@ -302,9 +309,16 @@ export class IntentEngine {
   }
 
   /**
+   * 生成应用名称（公共方法，供向导使用）
+   */
+  generateAppName(parsed: UserIntent['parsed']): string {
+    return this._generateAppName(parsed);
+  }
+
+  /**
    * 生成应用名称
    */
-  private generateAppName(parsed: UserIntent['parsed']): string {
+  private _generateAppName(parsed: UserIntent['parsed']): string {
     const parts: string[] = [];
     
     if (parsed.dataSources.length > 0) {
@@ -345,9 +359,16 @@ export class IntentEngine {
   }
 
   /**
+   * 构建工作流（公共方法，供向导使用）
+   */
+  buildWorkflow(parsed: UserIntent['parsed'], components?: Component[]): WorkflowStep[] {
+    return this._buildWorkflow(parsed, components || []);
+  }
+
+  /**
    * 构建工作流
    */
-  private buildWorkflow(parsed: UserIntent['parsed'], components: Component[]): WorkflowStep[] {
+  private _buildWorkflow(parsed: UserIntent['parsed'], components: Component[]): WorkflowStep[] {
     const steps: WorkflowStep[] = [];
     let stepIndex = 0;
     

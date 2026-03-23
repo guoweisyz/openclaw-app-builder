@@ -80,15 +80,18 @@ _This is your long-term memory. Curated, not raw._
 | npm 适配器 | npm 包搜索 | 2026-03-22 |
 | LLM 意图理解 | OpenAI + 规则引擎双模式 | 2026-03-22 |
 | 工作流执行引擎 | 应用实际运行 | 2026-03-22 |
+| MCPClient | 连接并调用 MCP Servers | 2026-03-23 |
 
 ### 待办事项
 
 - [x] 安装依赖并测试运行
 - [x] 修复潜在的类型错误
+- [x] 实现 MCPClient 和工作流执行引擎
 - [ ] 添加前端界面（Web UI）
 - [ ] OpenClaw Gateway 集成
 - [ ] 百度千帆/阿里百炼适配器
 - [ ] 应用分享/导出功能
+- [ ] 接入真实 MCP Servers（fetch, filesystem 等）
 
 ### 项目位置
 
@@ -131,6 +134,10 @@ npm run cli -- create "每天推送天气到微信" --save
   - 服务启动正常，端口 3000
   - 意图解析 API 测试成功
 - ✅ 首次 Git 提交完成
+- ✅ **应用真正运行成功** (2026-03-23)
+  - MCPClient 实现完成
+  - WorkflowEngine 实现完成
+  - 天气推送到飞书应用成功执行
 
 ### 测试结果
 
@@ -145,11 +152,17 @@ npm run cli -- create "每天推送天气到微信" --save
   - 正确识别 dataSources: zhihu, trending
   - 正确识别 destinations: wechat
   - 正确识别 schedule: hourly
+
+✓ 应用执行成功: 天气飞书通知定时助手
+  - 步骤1: 获取天气数据 → 25°C, 晴朗, 湿度45%
+  - 步骤2: 发送到飞书 → messageId: msg_xxx, status: sent
+  - 总耗时: 25ms
 ```
 
 ### 下一步
 
-1. 添加前端界面（Web UI）- 优先级高
-2. OpenClaw Gateway 集成
-3. 百度千帆/阿里百炼适配器
-4. 应用分享/导出功能
+1. 接入真实 MCP Servers（fetch, filesystem）
+2. 添加前端界面（Web UI）
+3. OpenClaw Gateway 集成
+4. 百度千帆/阿里百炼适配器
+5. 应用分享/导出功能

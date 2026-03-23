@@ -16,7 +16,7 @@ export function createIntentRoutes(deps: RouteDeps): Router {
       return res.status(400).json({ error: 'description is required' });
     }
     
-    const intent = await deps.intentEngine.parse(description);
+    const intent = await deps.intentEngine.parseIntent(description);
     res.json(intent);
   });
 

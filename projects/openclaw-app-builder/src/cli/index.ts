@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import { ComponentRegistry } from '../marketplace/registry/ComponentRegistry.js';
 import { IntentEngine } from '../core/intent/IntentEngine.js';
 import { AppManager } from '../core/AppManager.js';
+import { interactiveCreateWizard } from './wizard.js';
 
 const program = new Command();
 
@@ -112,6 +113,23 @@ program
       }
     } catch (error) {
       console.error(chalk.red('\n创建失败:'), error instanceof Error ? error.message : error);
+    }
+  });
+
+// 交互式创建向导（借鉴 Clawith）
+program
+  .command('wizard')
+  .description('交互式应用创建向导（5步流程）')
+  .action(async () => {
+    const registry = await initRegistry();
+    const intentEngine = new IntentEngine(registry);
+    const appManager = new AppManager(registry);
+    await appManager.initialize();
+    
+    try {
+      await interactiveCreateWizard(registry, intentEngine, appManager);
+    } catch (error) {
+      console.error(chalk.red('\n向导执行失败:'), error instanceof Error ? error.message : error);
     }
   });
 
