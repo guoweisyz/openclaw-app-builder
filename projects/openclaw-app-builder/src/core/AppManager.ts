@@ -13,7 +13,7 @@ export class AppManager {
 
   constructor(private registry: ComponentRegistry) {
     this.db = new DatabaseManager();
-    this.workflowEngine = new WorkflowEngine();
+    this.workflowEngine = new WorkflowEngine(registry);
   }
 
   async initialize(): Promise<void> {

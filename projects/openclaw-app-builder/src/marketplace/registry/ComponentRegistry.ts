@@ -63,6 +63,13 @@ export class ComponentRegistry {
   }
 
   /**
+   * 获取单个组件（别名，与 get 相同）
+   */
+  async getComponent(id: string): Promise<Component | null> {
+    return this.get(id);
+  }
+
+  /**
    * 安装组件
    */
   async install(id: string, config?: Record<string, unknown>): Promise<InstallResult> {
