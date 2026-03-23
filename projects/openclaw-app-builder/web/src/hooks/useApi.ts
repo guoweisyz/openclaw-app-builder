@@ -103,3 +103,61 @@ export function useIntent() {
 
   return { parsedIntent, loading, parseIntent }
 }
+
+export interface Execution {
+  id: string
+  appId: string
+  status: 'running' | 'success' | 'failed'
+  startedAt: string
+  endedAt?: string
+  outputs?: Record<string, any>
+  error?: string
+}
+
+export interface ExecutionStats {
+  total: number
+  success: number
+  failed: number
+  lastRun?: string
+}
+
+export function useExecutions(appId: string) {
+  const [executions, setExecutions] = useState<Execution[]>([])
+  const [stats, setStats] = useState<ExecutionStats | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (appId) {
+      fetchExecutions()
+      fetchStats()
+    }
+  }, [appId])
+
+  const fetchExecutions = async (limit = 50) => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${API_BASE}/apps/${appId}/executions?limit=${limit}`)
+      if (!response.ok) throw new Error('Failed to fetch executions')
+      const data = await response.json()
+      setExecutions(data.executions || [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/apps/${appId}/stats`)
+      if (!response.ok) throw new Error('Failed to fetch stats')
+      const data = await response.json()
+      setStats(data)
+    } catch (err) {
+      console.error('Failed to fetch stats:', err)
+    }
+  }
+
+  return { executions, stats, loading, error, refresh: fetchExecutions }
+}
