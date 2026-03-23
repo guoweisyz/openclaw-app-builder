@@ -10,7 +10,8 @@ export type ComponentChannel =
   | 'qianfan'      // 百度千帆
   | 'bailian'      // 阿里百炼
   | 'docker'       // Docker Hub
-  | 'private';     // 私有源
+  | 'private'      // 私有源
+  | 'installed';   // 自动安装的
 
 // 组件类型
 export type ComponentType = 'skill' | 'mcp-server';

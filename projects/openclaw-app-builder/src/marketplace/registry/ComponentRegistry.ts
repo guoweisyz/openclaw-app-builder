@@ -84,20 +84,28 @@ export class ComponentRegistry {
     }
 
     logger.info(`安装组件: ${component.name}`);
-    
+
     // TODO: 根据 install.type 执行实际安装
     // - npm: 执行 npm install
     // - pip: 执行 pip install
     // - docker: 拉取镜像
     // - source: git clone + build
     // - clawhub: 调用 clawhub CLI
-    
+
     return {
       success: true,
       componentId: id,
       message: `Component ${component.name} installed successfully`,
       config: config,
     };
+  }
+
+  /**
+   * 保存组件到数据库（用于自动安装）
+   */
+  async saveComponent(component: Component): Promise<void> {
+    await this.db.saveComponent(component);
+    logger.info(`组件已保存: ${component.name}`);
   }
 
   /**

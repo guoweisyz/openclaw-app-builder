@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { aggregationManager } from '../../marketplace/aggregation/AggregationManager.js';
+import { AutoInstaller } from '../../marketplace/aggregation/AutoInstaller.js';
 import { GitHubAdapter } from '../../marketplace/aggregation/adapters/GitHubAdapter.js';
 import { NpmAdapter } from '../../marketplace/aggregation/adapters/NpmAdapter.js';
 import { LocalAdapter } from '../../marketplace/aggregation/adapters/LocalAdapter.js';
+import { ComponentRegistry } from '../../marketplace/registry/ComponentRegistry.js';
 import { logger } from '../../utils/logger.js';
 
 // 初始化聚合管理器
@@ -15,6 +17,10 @@ aggregationManager.registerAdapter(npmAdapter);
 aggregationManager.registerAdapter(localAdapter);
 
 logger.info('聚合管理器已初始化，注册了 3 个渠道适配器');
+
+// 初始化自动安装器
+const registry = new ComponentRegistry();
+const autoInstaller = new AutoInstaller(registry);
 
 export function createAggregationRoutes(): Router {
   const router = Router();
@@ -72,6 +78,80 @@ export function createAggregationRoutes(): Router {
         { id: 'local', name: '本地/Built-in', description: '内置的 MCP Servers' },
       ],
     });
+  });
+
+  // 智能推荐并自动安装
+  router.post('/auto-install', async (req, res) => {
+    const { description, requirements } = req.body;
+
+    try {
+      // 如果提供了描述，先分析推荐
+      let reqs = requirements;
+      if (!reqs && description) {
+        const recommendation = await autoInstaller.smartRecommend(description);
+        reqs = recommendation.required;
+      }
+
+      if (!reqs || reqs.length === 0) {
+        return res.status(400).json({ error: '请提供 requirements 或 description' });
+      }
+
+      // 执行自动安装
+      const result = await autoInstaller.autoInstall(reqs);
+
+      res.json({
+        success: true,
+        installed: result.installed,
+        failed: result.failed,
+        recommendations: result.recommendations,
+      });
+    } catch (error) {
+      logger.error('自动安装失败:', error);
+      res.status(500).json({ error: 'Auto-install failed' });
+    }
+  });
+
+  // 智能推荐（不安装）
+  router.post('/recommend', async (req, res) => {
+    const { description } = req.body;
+
+    if (!description) {
+      return res.status(400).json({ error: 'Description is required' });
+    }
+
+    try {
+      const result = await autoInstaller.smartRecommend(description);
+      res.json(result);
+    } catch (error) {
+      logger.error('推荐失败:', error);
+      res.status(500).json({ error: 'Recommendation failed' });
+    }
+  });
+
+  // 获取已安装的 Servers
+  router.get('/installed', async (req, res) => {
+    try {
+      const servers = await autoInstaller.getInstalledServers();
+      res.json({ servers });
+    } catch (error) {
+      logger.error('获取已安装列表失败:', error);
+      res.status(500).json({ error: 'Failed to get installed servers' });
+    }
+  });
+
+  // 卸载 Server
+  router.delete('/installed/:id', async (req, res) => {
+    try {
+      const success = await autoInstaller.uninstall(req.params.id);
+      if (success) {
+        res.json({ success: true, message: 'Uninstalled successfully' });
+      } else {
+        res.status(404).json({ error: 'Server not found' });
+      }
+    } catch (error) {
+      logger.error('卸载失败:', error);
+      res.status(500).json({ error: 'Uninstall failed' });
+    }
   });
 
   return router;
