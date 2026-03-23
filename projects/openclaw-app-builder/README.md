@@ -34,16 +34,30 @@ cp .env.example .env
 
 ### 启动服务
 
+**方式1: 同时启动 API 和前端（推荐开发）**
 ```bash
-# 开发模式（热重载）
+# 终端1: 启动 API 服务
 npm run dev
 
-# 生产模式
+# 终端2: 启动前端开发服务器
+npm run dev:web
+```
+
+**方式2: 仅启动 API**
+```bash
+npm run dev
+# 访问: http://localhost:3000
+```
+
+**方式3: 生产模式**
+```bash
 npm run build
 npm start
 ```
 
-服务启动后访问: http://localhost:3000
+### 访问
+- **Web UI**: http://localhost:5173
+- **API 文档**: http://localhost:3000/api/docs
 
 ## 📖 使用示例
 
@@ -257,7 +271,7 @@ openclaw-app-builder/
 - [x] npm 适配器
 - [x] LLM 意图理解 (OpenAI)
 - [x] 工作流执行引擎
-- [ ] 前端界面 (Web UI)
+- [x] 前端界面 (Web UI + React)
 - [ ] OpenClaw Gateway 集成
 - [ ] 百度千帆/阿里百炼适配器
 - [ ] 应用分享/导出功能
