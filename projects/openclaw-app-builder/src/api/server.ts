@@ -7,6 +7,8 @@ import { createAppRoutes } from './routes/apps.js';
 import { createIntentRoutes } from './routes/intent.js';
 import { createSyncRoutes } from './routes/sync.js';
 import { createAggregationRoutes } from './routes/aggregation.js';
+import { createGatewayRoutes } from './routes/gateway.js';
+import { GatewayDeploymentService } from '../gateway/GatewayDeploymentService.js';
 
 interface ServerDeps {
   registry: ComponentRegistry;
@@ -30,6 +32,9 @@ export function createServer(deps: ServerDeps): express.Application {
     });
   });
 
+  // 初始化 Gateway 部署服务
+  const gatewayDeploymentService = new GatewayDeploymentService(deps.appManager);
+
   // API 路由
   const apiRouter = Router();
   
@@ -38,6 +43,7 @@ export function createServer(deps: ServerDeps): express.Application {
   apiRouter.use('/intent', createIntentRoutes(deps));
   apiRouter.use('/sync', createSyncRoutes(deps));
   apiRouter.use('/aggregation', createAggregationRoutes());
+  apiRouter.use('/gateway', createGatewayRoutes({ gatewayDeploymentService }));
 
   app.use('/api', apiRouter);
 
