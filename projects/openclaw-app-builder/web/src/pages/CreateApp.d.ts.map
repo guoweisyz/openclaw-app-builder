@@ -1,0 +1,1 @@
+{"version":3,"file":"CreateApp.d.ts","sourceRoot":"","sources":["CreateApp.tsx"],"names":[],"mappings":"AACA,OAAO,EAAE,IAAI,EAAE,MAAM,QAAQ,CAAA;AAG7B,UAAU,cAAc;IACtB,UAAU,EAAE,CAAC,IAAI,EAAE,IAAI,EAAE,KAAK,CAAC,EAAE,MAAM,KAAK,IAAI,CAAA;CACjD;AAED,wBAAgB,SAAS,CAAC,EAAE,UAAU,EAAE,EAAE,cAAc,2CAkJvD"}

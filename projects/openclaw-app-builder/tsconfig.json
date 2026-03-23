@@ -1,4 +1,5 @@
 {
+  "exclude": ["web", "dist", "vite.config.ts"],
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",

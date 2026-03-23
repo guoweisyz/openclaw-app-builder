@@ -1,0 +1,29 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import React, { useState } from 'react';
+import { View } from '../App';
+import { useApps, useIntent } from '../hooks/useApi';
+export function CreateApp({ onNavigate }) {
+    const [description, setDescription] = useState('');
+    const [step, setStep] = useState('input');
+    const { parseIntent, parsedIntent, loading: parsing } = useIntent();
+    const { createApp, loading: creating } = useApps();
+    const handleParse = async () => {
+        if (!description.trim())
+            return;
+        await parseIntent(description);
+        setStep('preview');
+    };
+    const handleCreate = async () => {
+        try {
+            setStep('creating');
+            const app = await createApp(description);
+            onNavigate('detail', app.id);
+        }
+        catch (err) {
+            setStep('preview');
+            alert('创建失败');
+        }
+    };
+    return (_jsxs("div", { className: "p-8 max-w-4xl", children: [_jsx("h2", { className: "text-2xl font-bold text-gray-900 mb-6", children: "\u521B\u5EFA\u5E94\u7528" }), step === 'input' && (_jsxs("div", { className: "bg-white rounded-xl border border-gray-200 p-6", children: [_jsx("label", { className: "block text-sm font-medium text-gray-700 mb-2", children: "\u63CF\u8FF0\u4F60\u7684\u5E94\u7528" }), _jsx("p", { className: "text-sm text-gray-500 mb-4", children: "\u7528\u81EA\u7136\u8BED\u8A00\u63CF\u8FF0\u4F60\u60F3\u5B9E\u73B0\u7684\u529F\u80FD\uFF0C\u4F8B\u5982\uFF1A\"\u6BCF\u5929\u65E9\u4E0A8\u70B9\u63A8\u9001\u5929\u6C14\u5230\u98DE\u4E66\"" }), _jsx("textarea", { value: description, onChange: (e) => setDescription(e.target.value), placeholder: "\u6BCF\u5929\u65E9\u4E0A8\u70B9\u63A8\u9001\u5929\u6C14\u5230\u98DE\u4E66...", className: "w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none" }), _jsx("div", { className: "flex justify-end mt-4", children: _jsx("button", { onClick: handleParse, disabled: !description.trim() || parsing, className: "bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 text-white px-6 py-2 rounded-lg font-medium", children: parsing ? '分析中...' : '下一步' }) })] })), step === 'preview' && parsedIntent && (_jsxs("div", { className: "space-y-6", children: [_jsxs("div", { className: "bg-white rounded-xl border border-gray-200 p-6", children: [_jsx("h3", { className: "text-lg font-semibold text-gray-900 mb-4", children: "\u5E94\u7528\u9884\u89C8" }), _jsxs("div", { className: "space-y-4", children: [_jsxs("div", { className: "grid grid-cols-2 gap-4", children: [_jsxs("div", { className: "bg-gray-50 rounded-lg p-4", children: [_jsx("p", { className: "text-sm text-gray-500", children: "\u76EE\u6807" }), _jsx("p", { className: "font-medium text-gray-900", children: parsedIntent.parsed.goal })] }), _jsxs("div", { className: "bg-gray-50 rounded-lg p-4", children: [_jsx("p", { className: "text-sm text-gray-500", children: "\u5B9A\u65F6" }), _jsx("p", { className: "font-medium text-gray-900", children: parsedIntent.parsed.schedule || '手动触发' })] })] }), _jsxs("div", { className: "grid grid-cols-3 gap-4", children: [_jsxs("div", { className: "bg-blue-50 rounded-lg p-4", children: [_jsx("p", { className: "text-sm text-blue-600", children: "\u52A8\u4F5C" }), _jsx("div", { className: "flex flex-wrap gap-2 mt-1", children: parsedIntent.parsed.actions.map((action) => (_jsx("span", { className: "bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm", children: action }, action))) })] }), _jsxs("div", { className: "bg-green-50 rounded-lg p-4", children: [_jsx("p", { className: "text-sm text-green-600", children: "\u6570\u636E\u6E90" }), _jsx("div", { className: "flex flex-wrap gap-2 mt-1", children: parsedIntent.parsed.dataSources.map((source) => (_jsx("span", { className: "bg-green-100 text-green-700 px-2 py-1 rounded text-sm", children: source }, source))) })] }), _jsxs("div", { className: "bg-purple-50 rounded-lg p-4", children: [_jsx("p", { className: "text-sm text-purple-600", children: "\u76EE\u7684\u5730" }), _jsx("div", { className: "flex flex-wrap gap-2 mt-1", children: parsedIntent.parsed.destinations.map((dest) => (_jsx("span", { className: "bg-purple-100 text-purple-700 px-2 py-1 rounded text-sm", children: dest }, dest))) })] })] }), _jsxs("div", { className: "bg-yellow-50 rounded-lg p-4", children: [_jsxs("p", { className: "text-sm text-yellow-700 mb-2", children: ["\u7F6E\u4FE1\u5EA6: ", Math.round(parsedIntent.confidence * 100), "%"] }), _jsx("div", { className: "w-full bg-yellow-200 rounded-full h-2", children: _jsx("div", { className: "bg-yellow-500 h-2 rounded-full transition-all", style: { width: `${parsedIntent.confidence * 100}%` } }) })] })] })] }), _jsxs("div", { className: "flex justify-between", children: [_jsx("button", { onClick: () => setStep('input'), className: "text-gray-600 hover:text-gray-900 px-4 py-2", children: "\u2190 \u8FD4\u56DE\u4FEE\u6539" }), _jsx("button", { onClick: handleCreate, disabled: creating, className: "bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 text-white px-6 py-2 rounded-lg font-medium", children: creating ? '创建中...' : '✨ 创建应用' })] })] })), step === 'creating' && (_jsxs("div", { className: "bg-white rounded-xl border border-gray-200 p-12 text-center", children: [_jsx("div", { className: "animate-spin text-4xl mb-4", children: "\u2699\uFE0F" }), _jsx("h3", { className: "text-lg font-medium text-gray-900", children: "\u6B63\u5728\u521B\u5EFA\u5E94\u7528..." }), _jsx("p", { className: "text-gray-500 mt-2", children: "\u8BF7\u7A0D\u5019" })] }))] }));
+}
+//# sourceMappingURL=CreateApp.js.map
