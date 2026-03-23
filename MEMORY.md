@@ -168,6 +168,7 @@ npm run cli -- create "每天推送天气到微信" --save
    - fetch-server（HTTP 请求）
 4. [x] 执行历史持久化 - ✅ 2026-03-23 完成
 5. [x] Web UI 执行历史展示 - ✅ 2026-03-23 完成
-6. OpenClaw Gateway 集成
-7. 百度千帆/阿里百炼适配器
-8. 应用分享/导出功能
+6. [x] 应用分享/导出功能 - ✅ 2026-03-23 完成
+7. OpenClaw Gateway 集成
+8. 百度千帆/阿里百炼适配器
+9. 更多 MCP Servers（文件系统、数据库等）

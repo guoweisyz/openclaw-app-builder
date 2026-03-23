@@ -268,6 +268,33 @@ export class ComponentRegistry {
         tags: ['weather', 'api', 'utility'],
         verified: true,
       },
+      {
+        id: 'local:filesystem',
+        name: 'filesystem-server',
+        displayName: '文件系统 MCP',
+        description: '安全的文件读写操作',
+        version: '1.0.0',
+        source: { 
+          channel: 'clawhub', 
+          url: 'https://clawhub.com/skills/filesystem',
+        },
+        type: 'mcp-server',
+        install: { 
+          type: 'source', 
+          command: 'tsx src/mcp-servers/filesystem-server.ts'
+        },
+        mcpConfig: {
+          transport: 'stdio',
+          command: 'npx',
+          args: ['tsx', 'src/mcp-servers/filesystem-server.ts'],
+          env: {
+            FILESYSTEM_WORK_DIR: './data/files'
+          }
+        },
+        capabilities: ['tools'],
+        tags: ['filesystem', 'file', 'storage'],
+        verified: true,
+      },
     ];
 
     await this.db.saveComponents(mockComponents);
