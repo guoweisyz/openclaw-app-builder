@@ -83,6 +83,19 @@ curl -X POST http://localhost:3000/api/intent/generate \
   }'
 ```
 
+### 示例 4: 交互式向导（推荐）
+
+```bash
+npm run cli -- wizard
+```
+
+**5步交互式流程**（借鉴 Clawith）:
+1. **基础信息** - 输入应用描述
+2. **意图确认** - 确认AI分析结果或手动调整
+3. **组件配置** - 选择需要的组件
+4. **触发方式与权限** - 设置定时/手动/Webhook，选择执行权限级别
+5. **确认与创建** - 预览并创建应用
+
 ## 🛠️ CLI 命令
 
 ### 搜索组件
@@ -101,10 +114,13 @@ npm run cli -- search fetch --limit 5
 ### 创建应用
 
 ```bash
-# 创建天气推送应用
+# 方式1: 交互式向导（推荐）
+npm run cli -- wizard
+
+# 方式2: 快速创建
 npm run cli -- create "每天推送天气到微信"
 
-# 指定名称并保存
+# 方式3: 指定名称并保存
 npm run cli -- create "每天早上9点抓取知乎热榜保存到 Notion" \
   --name "知乎热榜同步" \
   --save
