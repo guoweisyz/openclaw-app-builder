@@ -86,6 +86,7 @@ export interface App {
     type: 'manual' | 'schedule' | 'webhook' | 'event';
     config?: {
       cron?: string;           // 定时触发
+      timezone?: string;       // 时区
       webhookUrl?: string;     // Webhook 触发
       eventType?: string;      // 事件触发
     };
@@ -100,7 +101,7 @@ export interface App {
   // 配置
   config: Record<string, unknown>;
   
-  status: 'draft' | 'active' | 'paused' | 'error';
+  status: 'draft' | 'active' | 'inactive' | 'paused' | 'error';
   createdAt: string;
   updatedAt: string;
 }

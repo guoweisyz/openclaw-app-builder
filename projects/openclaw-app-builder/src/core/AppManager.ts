@@ -2,6 +2,7 @@ import { ComponentRegistry } from '../marketplace/registry/ComponentRegistry.js'
 import { DatabaseManager } from '../utils/DatabaseManager.js';
 import type { App, ExecutionResult } from '../types/index.js';
 import { WorkflowEngine } from '../runtime/executor/WorkflowEngine.js';
+import { Scheduler } from '../runtime/Scheduler.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -10,14 +11,20 @@ import { logger } from '../utils/logger.js';
 export class AppManager {
   private db: DatabaseManager;
   private workflowEngine: WorkflowEngine;
+  private scheduler: Scheduler;
 
   constructor(private registry: ComponentRegistry) {
     this.db = new DatabaseManager();
     this.workflowEngine = new WorkflowEngine(registry);
+    this.scheduler = new Scheduler(registry);
   }
 
   async initialize(): Promise<void> {
     await this.db.initialize();
+    
+    // 启动时加载所有活跃的定时任务
+    const apps = await this.list();
+    await this.scheduler.startAll(apps);
   }
 
   /**
@@ -75,6 +82,14 @@ export class AppManager {
     };
 
     await this.db.saveApp(updated);
+    
+    // 如果应用是活跃状态且触发方式改变，重新调度
+    if (updated.status === 'active' && updated.trigger.type === 'schedule') {
+      this.scheduler.schedule(updated);
+    } else if (updated.status !== 'active') {
+      this.scheduler.unschedule(id);
+    }
+    
     return updated;
   }
 
@@ -82,6 +97,9 @@ export class AppManager {
    * 删除应用
    */
   async delete(id: string): Promise<void> {
+    // 取消调度
+    this.scheduler.unschedule(id);
+    
     await this.db.deleteApp(id);
     logger.info('删除应用:', id);
   }
@@ -105,9 +123,9 @@ export class AppManager {
   }
 
   /**
-   * 部署应用
+   * 部署应用（激活定时任务）
    */
-  async deploy(id: string, options?: Record<string, unknown>): Promise<{ success: boolean; url?: string }> {
+  async deploy(id: string, options?: Record<string, unknown>): Promise<{ success: boolean; url?: string; message?: string }> {
     const app = await this.db.getApp(id);
     
     if (!app) {
@@ -116,17 +134,69 @@ export class AppManager {
 
     logger.info('部署应用:', app.name);
 
-    // TODO: 根据 trigger.type 部署
-    // - manual: 本地保存配置
-    // - schedule: 注册到 Cron 系统
-    // - webhook: 创建 webhook 端点
-    // - event: 注册事件监听器
-
+    // 更新状态为活跃
     await this.update(id, { status: 'active' });
+
+    // 如果是定时触发，添加到调度器
+    if (app.trigger.type === 'schedule' && app.trigger.config?.cron) {
+      const scheduled = this.scheduler.schedule(app);
+      if (scheduled) {
+        return {
+          success: true,
+          url: `http://localhost:3000/api/apps/${id}`,
+          message: `应用已部署，将按照 ${app.trigger.config.cron} 定时执行`,
+        };
+      } else {
+        return {
+          success: false,
+          message: '部署失败：无效的 cron 表达式',
+        };
+      }
+    }
 
     return {
       success: true,
       url: `http://localhost:3000/api/apps/${id}`,
+      message: '应用已部署',
     };
+  }
+
+  /**
+   * 停止应用（取消定时任务）
+   */
+  async stop(id: string): Promise<{ success: boolean; message?: string }> {
+    const app = await this.db.getApp(id);
+    
+    if (!app) {
+      throw new Error(`App not found: ${id}`);
+    }
+
+    logger.info('停止应用:', app.name);
+
+    // 取消调度
+    this.scheduler.unschedule(id);
+    
+    // 更新状态
+    await this.update(id, { status: 'inactive' });
+
+    return {
+      success: true,
+      message: '应用已停止',
+    };
+  }
+
+  /**
+   * 获取调度状态
+   */
+  getSchedulerStatus(): { appId: string; running: boolean }[] {
+    return this.scheduler.getStatus();
+  }
+
+  /**
+   * 关闭管理器
+   */
+  async shutdown(): Promise<void> {
+    logger.info('关闭应用管理器...');
+    this.scheduler.stopAll();
   }
 }

@@ -27,7 +27,7 @@ async function main() {
     appManager,
   });
 
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     logger.info(`✅ 服务已启动: http://localhost:${PORT}`);
     logger.info(`📖 API 文档: http://localhost:${PORT}/api/docs`);
     logger.info('');
@@ -37,8 +37,29 @@ async function main() {
     logger.info(`  GET  /api/components      - 搜索组件`);
     logger.info(`  POST /api/apps            - 创建应用`);
     logger.info(`  POST /api/apps/:id/run    - 运行应用`);
+    logger.info(`  POST /api/apps/:id/deploy - 部署应用（启动定时任务）`);
+    logger.info(`  POST /api/apps/:id/stop   - 停止应用（取消定时任务）`);
     logger.info(`  POST /api/sync/github     - 从 GitHub 同步`);
     logger.info(`  POST /api/sync/npm        - 从 npm 同步`);
+  });
+
+  // 优雅关闭
+  process.on('SIGTERM', async () => {
+    logger.info('收到 SIGTERM 信号，开始优雅关闭...');
+    server.close(() => {
+      logger.info('HTTP 服务器已关闭');
+    });
+    await appManager.shutdown();
+    process.exit(0);
+  });
+
+  process.on('SIGINT', async () => {
+    logger.info('收到 SIGINT 信号，开始优雅关闭...');
+    server.close(() => {
+      logger.info('HTTP 服务器已关闭');
+    });
+    await appManager.shutdown();
+    process.exit(0);
   });
 }
 

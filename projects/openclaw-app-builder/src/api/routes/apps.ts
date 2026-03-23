@@ -64,5 +64,17 @@ export function createAppRoutes(deps: RouteDeps): Router {
     res.json(result);
   });
 
+  // 停止应用
+  router.post('/:id/stop', async (req, res) => {
+    const result = await deps.appManager.stop(req.params.id);
+    res.json(result);
+  });
+
+  // 获取调度状态
+  router.get('/scheduler/status', async (req, res) => {
+    const status = deps.appManager.getSchedulerStatus();
+    res.json({ scheduled: status });
+  });
+
   return router;
 }
