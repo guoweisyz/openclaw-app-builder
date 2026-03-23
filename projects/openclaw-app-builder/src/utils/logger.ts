@@ -1,0 +1,19 @@
+/**
+ * 简单日志工具
+ */
+export const logger = {
+  info: (...args: unknown[]) => {
+    console.log(`[${new Date().toISOString()}] INFO:`, ...args);
+  },
+  error: (...args: unknown[]) => {
+    console.error(`[${new Date().toISOString()}] ERROR:`, ...args);
+  },
+  warn: (...args: unknown[]) => {
+    console.warn(`[${new Date().toISOString()}] WARN:`, ...args);
+  },
+  debug: (...args: unknown[]) => {
+    if (process.env.DEBUG) {
+      console.log(`[${new Date().toISOString()}] DEBUG:`, ...args);
+    }
+  },
+};
