@@ -381,8 +381,8 @@ export class IntentEngine {
           id: `step_${stepIndex++}`,
           name: `获取${this.translateKeyword(source)}数据`,
           componentId: component.id,
-          action: 'fetch',
-          inputs: this.buildInputsForSource(source),
+          action: component.type === 'mcp-server' ? 'get_weather' : 'fetch',
+          inputs: this.buildInputsForSource(source, component),
           outputs: { result: `${source}_data` },
         });
       }
@@ -434,9 +434,18 @@ export class IntentEngine {
 
   /**
    * 查找最佳匹配的组件
+   * 优先使用 MCP Server，其次是 Skill
    */
   private findBestComponent(components: Component[], keyword: string): Component | undefined {
-    // 优先匹配标签
+    // 优先找 MCP Server（真实组件）
+    const mcpServer = components.find(c => 
+      c.type === 'mcp-server' && 
+      (c.tags.includes(keyword) || 
+       c.name.toLowerCase().includes(keyword.toLowerCase()))
+    );
+    if (mcpServer) return mcpServer;
+    
+    // 其次匹配标签
     const byTag = components.find(c => c.tags.includes(keyword));
     if (byTag) return byTag;
     
@@ -455,9 +464,27 @@ export class IntentEngine {
   /**
    * 为数据源构建输入
    */
-  private buildInputsForSource(source: string): Record<string, InputMapping> {
+  private buildInputsForSource(source: string, component?: Component): Record<string, InputMapping> {
     const inputs: Record<string, InputMapping> = {};
     
+    // 如果是 MCP Server，使用真实参数
+    if (component?.type === 'mcp-server') {
+      switch (source) {
+        case 'weather':
+          inputs.location = { type: 'static', value: 'Beijing' };
+          inputs.format = { type: 'static', value: 'simple' };
+          break;
+        case 'web':
+          inputs.url = { type: 'static', value: 'https://example.com' };
+          inputs.method = { type: 'static', value: 'GET' };
+          break;
+        default:
+          inputs.query = { type: 'static', value: source };
+      }
+      return inputs;
+    }
+    
+    // 原有 Skill 输入逻辑
     switch (source) {
       case 'weather':
         inputs.location = { type: 'fromConfig', configKey: 'location' };

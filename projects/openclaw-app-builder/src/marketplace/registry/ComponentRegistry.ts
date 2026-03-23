@@ -221,58 +221,52 @@ export class ComponentRegistry {
         verified: true,
       },
       {
-        id: 'github:fetch',
-        name: '@modelcontextprotocol/server-fetch',
-        displayName: 'Fetch MCP Server',
-        description: '获取网页内容',
+        id: 'local:fetch',
+        name: 'fetch-server',
+        displayName: 'HTTP Fetch MCP',
+        description: '获取网页内容（本地实现）',
         version: '1.0.0',
         source: { 
-          channel: 'github', 
-          url: 'https://github.com/modelcontextprotocol/servers',
-          packageName: '@modelcontextprotocol/server-fetch'
+          channel: 'clawhub', 
+          url: 'https://clawhub.com/skills/fetch',
         },
         type: 'mcp-server',
         install: { 
-          type: 'npm', 
-          package: '@modelcontextprotocol/server-fetch',
-          command: 'npx -y @modelcontextprotocol/server-fetch'
+          type: 'source', 
+          command: 'tsx src/mcp-servers/fetch-server.ts'
         },
         mcpConfig: {
           transport: 'stdio',
           command: 'npx',
-          args: ['-y', '@modelcontextprotocol/server-fetch'],
+          args: ['tsx', 'src/mcp-servers/fetch-server.ts'],
         },
         capabilities: ['tools'],
         tags: ['fetch', 'http', 'web'],
         verified: true,
-        stats: { stars: 1200, downloads: 50000 },
       },
       {
-        id: 'github:filesystem',
-        name: '@modelcontextprotocol/server-filesystem',
-        displayName: '文件系统 MCP',
-        description: '安全的文件读写操作',
+        id: 'local:weather',
+        name: 'weather-server',
+        displayName: '天气查询 MCP',
+        description: '查询全球城市天气（使用 wttr.in）',
         version: '1.0.0',
         source: { 
-          channel: 'github', 
-          url: 'https://github.com/modelcontextprotocol/servers',
-          packageName: '@modelcontextprotocol/server-filesystem'
+          channel: 'clawhub', 
+          url: 'https://clawhub.com/skills/weather',
         },
         type: 'mcp-server',
         install: { 
-          type: 'npm', 
-          package: '@modelcontextprotocol/server-filesystem',
-          command: 'npx -y @modelcontextprotocol/server-filesystem'
+          type: 'source', 
+          command: 'tsx src/mcp-servers/weather-server.ts'
         },
         mcpConfig: {
           transport: 'stdio',
           command: 'npx',
-          args: ['-y', '@modelcontextprotocol/server-filesystem'],
+          args: ['tsx', 'src/mcp-servers/weather-server.ts'],
         },
-        capabilities: ['tools', 'resources'],
-        tags: ['filesystem', 'local', 'utility'],
+        capabilities: ['tools'],
+        tags: ['weather', 'api', 'utility'],
         verified: true,
-        stats: { stars: 800, downloads: 30000 },
       },
     ];
 
