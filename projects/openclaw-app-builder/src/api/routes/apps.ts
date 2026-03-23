@@ -89,5 +89,22 @@ export function createAppRoutes(deps: RouteDeps): Router {
     res.json(stats);
   });
 
+  // 导出应用
+  router.get('/:id/export', async (req, res) => {
+    const format = (req.query.format as 'json' | 'yaml') || 'json';
+    const { content, filename } = await deps.appManager.exportApp(req.params.id, format);
+    
+    res.setHeader('Content-Type', format === 'yaml' ? 'text/yaml' : 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(content);
+  });
+
+  // 导入应用
+  router.post('/import', async (req, res) => {
+    const { content, name } = req.body;
+    const app = await deps.appManager.importApp(content, name);
+    res.status(201).json(app);
+  });
+
   return router;
 }

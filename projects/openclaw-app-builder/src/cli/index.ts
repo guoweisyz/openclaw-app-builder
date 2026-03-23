@@ -272,4 +272,54 @@ program
     if (component.install.command) console.log(`  命令: ${component.install.command}`);
   });
 
+// 导出应用
+program
+  .command('export <id>')
+  .description('导出应用配置')
+  .option('-f, --format <format>', '导出格式 (json/yaml)', 'json')
+  .option('-o, --output <path>', '输出文件路径')
+  .action(async (id, options) => {
+    const registry = await initRegistry();
+    const appManager = new AppManager(registry);
+    await appManager.initialize();
+    
+    try {
+      const { content, filename } = await appManager.exportApp(id, options.format);
+      
+      if (options.output) {
+        const fs = await import('fs');
+        fs.writeFileSync(options.output, content);
+        console.log(chalk.green(`✓ 已导出到: ${options.output}`));
+      } else {
+        console.log(chalk.blue(`\n${filename}\n`));
+        console.log(content);
+      }
+    } catch (error) {
+      console.error(chalk.red('导出失败:'), error instanceof Error ? error.message : error);
+    }
+  });
+
+// 导入应用
+program
+  .command('import <file>')
+  .description('从文件导入应用')
+  .option('-n, --name <name>', '新应用名称（可选）')
+  .action(async (file, options) => {
+    const registry = await initRegistry();
+    const appManager = new AppManager(registry);
+    await appManager.initialize();
+    
+    try {
+      const fs = await import('fs');
+      const content = fs.readFileSync(file, 'utf-8');
+      
+      const app = await appManager.importApp(content, options.name);
+      console.log(chalk.green('\n✓ 应用导入成功!'));
+      console.log(`  ID: ${app.id}`);
+      console.log(`  名称: ${app.name}`);
+    } catch (error) {
+      console.error(chalk.red('导入失败:'), error instanceof Error ? error.message : error);
+    }
+  });
+
 program.parse();

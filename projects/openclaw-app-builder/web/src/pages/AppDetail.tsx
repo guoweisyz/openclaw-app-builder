@@ -71,6 +71,25 @@ export function AppDetail({ appId, onNavigate }: AppDetailProps) {
     }
   }
 
+  const handleExport = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/apps/${appId}/export?format=json`)
+      if (!response.ok) throw new Error('Export failed')
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${app?.name.replace(/\s+/g, '_')}_export.json`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (err) {
+      alert('导出失败')
+    }
+  }
+
   const formatDuration = (startedAt: string, endedAt?: string) => {
     if (!endedAt) return '-'
     const duration = new Date(endedAt).getTime() - new Date(startedAt).getTime()
@@ -126,13 +145,21 @@ export function AppDetail({ appId, onNavigate }: AppDetailProps) {
           </div>
           <p className="text-gray-500 mt-1">{app.description}</p>
         </div>
-        <button
-          onClick={handleRun}
-          disabled={running}
-          className="bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
-        >
-          {running ? '运行中...' : '▶️ 运行应用'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExport}
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2"
+          >
+            📥 导出
+          </button>
+          <button
+            onClick={handleRun}
+            disabled={running}
+            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2"
+          >
+            {running ? '运行中...' : '▶️ 运行'}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-6">

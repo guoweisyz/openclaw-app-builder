@@ -167,6 +167,7 @@ npm run cli -- create "每天推送天气到微信" --save
    - weather-server（天气查询，使用 wttr.in）
    - fetch-server（HTTP 请求）
 4. [x] 执行历史持久化 - ✅ 2026-03-23 完成
-5. OpenClaw Gateway 集成
-6. 百度千帆/阿里百炼适配器
-7. 应用分享/导出功能
+5. [x] Web UI 执行历史展示 - ✅ 2026-03-23 完成
+6. OpenClaw Gateway 集成
+7. 百度千帆/阿里百炼适配器
+8. 应用分享/导出功能

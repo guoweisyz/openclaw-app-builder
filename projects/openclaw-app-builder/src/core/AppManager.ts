@@ -1,5 +1,6 @@
 import { ComponentRegistry } from '../marketplace/registry/ComponentRegistry.js';
 import { DatabaseManager } from '../utils/DatabaseManager.js';
+import { appExporter } from '../utils/AppExporter.js';
 import type { App, ExecutionResult } from '../types/index.js';
 import { WorkflowEngine } from '../runtime/executor/WorkflowEngine.js';
 import { Scheduler } from '../runtime/Scheduler.js';
@@ -209,6 +210,52 @@ export class AppManager {
     lastRun?: string;
   }> {
     return this.db.getExecutionStats(appId);
+  }
+
+  /**
+   * 导出应用
+   */
+  async exportApp(appId: string, format: 'json' | 'yaml' = 'json'): Promise<{ content: string; filename: string }> {
+    const app = await this.db.getApp(appId);
+    if (!app) {
+      throw new Error(`App not found: ${appId}`);
+    }
+
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `${app.name.replace(/\s+/g, '_')}_${timestamp}.${format}`;
+
+    const content = format === 'yaml' 
+      ? appExporter.toYAML(app, { exportedBy: 'openclaw-app-builder' })
+      : appExporter.toJSON(app, { exportedBy: 'openclaw-app-builder' });
+
+    return { content, filename };
+  }
+
+  /**
+   * 导入应用
+   */
+  async importApp(json: string, name?: string): Promise<App> {
+    const imported = appExporter.fromJSON(json);
+    
+    // 如果提供了新名称，使用新名称
+    if (name) {
+      imported.name = name;
+    }
+
+    // 确保名称唯一
+    const existing = await this.list();
+    const baseName = imported.name || 'Imported App';
+    let finalName = baseName;
+    let counter = 1;
+    
+    while (existing.find(a => a.name === finalName)) {
+      finalName = `${baseName} (${counter})`;
+      counter++;
+    }
+    imported.name = finalName;
+
+    // 创建应用
+    return this.create(imported);
   }
 
   /**
