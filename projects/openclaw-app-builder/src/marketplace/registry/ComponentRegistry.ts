@@ -295,6 +295,78 @@ export class ComponentRegistry {
         tags: ['filesystem', 'file', 'storage'],
         verified: true,
       },
+      {
+        id: 'local:time',
+        name: 'time-server',
+        displayName: '时间日期 MCP',
+        description: '时间查询、日期计算',
+        version: '1.0.0',
+        source: { 
+          channel: 'clawhub', 
+          url: 'https://clawhub.com/skills/time',
+        },
+        type: 'mcp-server',
+        install: { 
+          type: 'source', 
+          command: 'tsx src/mcp-servers/time-server.ts'
+        },
+        mcpConfig: {
+          transport: 'stdio',
+          command: 'npx',
+          args: ['tsx', 'src/mcp-servers/time-server.ts'],
+        },
+        capabilities: ['tools'],
+        tags: ['time', 'date', 'utility'],
+        verified: true,
+      },
+      {
+        id: 'local:calculator',
+        name: 'calculator-server',
+        displayName: '计算器 MCP',
+        description: '数学计算、单位转换',
+        version: '1.0.0',
+        source: { 
+          channel: 'clawhub', 
+          url: 'https://clawhub.com/skills/calculator',
+        },
+        type: 'mcp-server',
+        install: { 
+          type: 'source', 
+          command: 'tsx src/mcp-servers/calculator-server.ts'
+        },
+        mcpConfig: {
+          transport: 'stdio',
+          command: 'npx',
+          args: ['tsx', 'src/mcp-servers/calculator-server.ts'],
+        },
+        capabilities: ['tools'],
+        tags: ['math', 'calculator', 'utility'],
+        verified: true,
+      },
+      {
+        id: 'local:json',
+        name: 'json-server',
+        displayName: 'JSON 处理 MCP',
+        description: 'JSON 解析、转换、查询',
+        version: '1.0.0',
+        source: { 
+          channel: 'clawhub', 
+          url: 'https://clawhub.com/skills/json',
+        },
+        type: 'mcp-server',
+        install: { 
+          type: 'source', 
+          command: 'tsx src/mcp-servers/json-server.ts'
+        },
+        mcpConfig: {
+          transport: 'stdio',
+          command: 'npx',
+          args: ['tsx', 'src/mcp-servers/json-server.ts'],
+        },
+        capabilities: ['tools'],
+        tags: ['json', 'data', 'transform'],
+        verified: true,
+      },
     ];
 
     await this.db.saveComponents(mockComponents);
