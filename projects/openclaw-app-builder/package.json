@@ -46,6 +46,7 @@
     "@types/node-cron": "^3.0.11",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vercel/node": "^3.0.0",
     "autoprefixer": "^10.4.27",
     "eslint": "^8.55.0",
     "postcss": "^8.5.8",
