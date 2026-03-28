@@ -53,7 +53,7 @@ async function initializeApp() {
   expressApp.use('/api/components', createComponentRoutes({ registry, intentEngine, appManager }));
   expressApp.use('/api/apps', createAppRoutes({ registry, intentEngine, appManager }));
   expressApp.use('/api/intent', createIntentRoutes({ registry, intentEngine, appManager }));
-  expressApp.use('/api/sync', createSyncRoutes({ registry, intentEngine, appManager }));
+  expressApp.use('/api/sync', createSyncRoutes({ registry }));
   expressApp.use('/api/aggregation', createAggregationRoutes());
   expressApp.use('/api/gateway', createGatewayRoutes({ gatewayDeploymentService }));
 
